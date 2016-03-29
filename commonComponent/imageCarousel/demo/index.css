@@ -43,6 +43,7 @@
 	position: relative;
 	left:0;
 	top:0;
+    width:660px;
 }
 .imagesCarousel-container .imagesCarousel .imagesCarousel-item {
 	float: left;

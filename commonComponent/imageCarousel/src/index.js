@@ -1,10 +1,31 @@
-(function($) {
-	var containterWd = $('#imagesCarousel').width();
-	var cloneList = $("#imagesCarousel-list li");
-	$(function(){
-       imagesCarouselList()
+    var containterWd = $('#imagesCarousel').width();
+	$(function() {
+	   imgLoadComplate();
        bindEvent();
 	});
+
+	function imgLoadComplate() {//判断轮播图片是否加载完
+       var imgsUrlArr = [];
+       $("#imagesCarousel-list li img").each(function(){
+        	imgsUrlArr.push($(this).attr('src'));
+    	});
+       var loadImgCount = 0;
+
+        function imgLoad(url) {
+       	    if(loadImgCount == imgsUrlArr.length){
+       	    	imagesCarouselList()
+       	    	return;
+       	    }
+       	    var img = new Image();
+       	    img.src = url;
+       	    img.onload = function() {
+       	       loadImgCount ++;   
+       	       imgLoad(imgsUrlArr[loadImgCount]);
+       	    }
+       	}
+       imgLoad(imgsUrlArr[loadImgCount]);
+	}
+
 	function imagesCarouselList() {
        var $imageList = $("#imagesCarousel-list");
        var $imageListLis = $("#imagesCarousel-list li");
@@ -21,7 +42,6 @@
 
        var currentItemWd = $("#imagesCarousel-list li.currentItem").outerWidth(true);
        $imageList.css({left:-totalWidth + (containterWd - currentItemWd) / 2});
-       
 	}
 
 	function bindEvent() {
@@ -77,5 +97,3 @@
 		$imageList.css({left:newLeft});
        		
 	}
-
-})($)
