@@ -7,7 +7,7 @@
 
   function imgLoadComplate() {//判断轮播图片是否加载完
        var imgsUrlArr = [];
-       $("#imagesCarousel-list li img").each(function(){
+       $(".imagesCarousel-list li img").each(function(){
           imgsUrlArr.push($(this).attr('src'));
       });
        var loadImgCount = 0;
