@@ -1,99 +1,122 @@
-    var containterWd = $('#imagesCarousel').width();
-	$(function() {
-	   imgLoadComplate();
+  var containterWd = $('#imagesCarousel').width();
+  var totalWidth = 0;
+  $(function() {
+     imgLoadComplate();
        bindEvent();
-	});
+  });
 
-	function imgLoadComplate() {//判断轮播图片是否加载完
+  function imgLoadComplate() {//判断轮播图片是否加载完
        var imgsUrlArr = [];
        $("#imagesCarousel-list li img").each(function(){
-        	imgsUrlArr.push($(this).attr('src'));
-    	});
+          imgsUrlArr.push($(this).attr('src'));
+      });
        var loadImgCount = 0;
 
         function imgLoad(url) {
-       	    if(loadImgCount == imgsUrlArr.length){
-       	    	imagesCarouselList()
-       	    	return;
-       	    }
-       	    var img = new Image();
-       	    img.src = url;
-       	    img.onload = function() {
-       	       loadImgCount ++;   
-       	       imgLoad(imgsUrlArr[loadImgCount]);
-       	    }
-       	}
+            if(loadImgCount == imgsUrlArr.length){
+              imagesCarouselList()
+              return;
+            }
+            var img = new Image();
+            img.src = url;
+            img.onload = function() {
+               loadImgCount ++;   
+               imgLoad(imgsUrlArr[loadImgCount]);
+            }
+        }
        imgLoad(imgsUrlArr[loadImgCount]);
-	}
+  }
 
-	function imagesCarouselList() {
-       var $imageList = $("#imagesCarousel-list");
-       var $imageListLis = $("#imagesCarousel-list li");
-       var totalWidth = 0;
-
-       $imageListLis.each(function(i,item){
-       	    totalWidth += $(item).outerWidth(true);
+  function imagesCarouselList() {
+       var $imageList = $(".imagesCarousel-list");
+       var $imageListLis = $(".imagesCarousel-list li");
+ 
+       $imageListLis.each(function(i,item) { //计算一个UL的宽度
+            totalWidth += $(item).outerWidth(true);
        });
-       var cloneList = $imageListLis.clone();
-       $(cloneList[0]).addClass('currentItem');
-       $imageList.append(cloneList);
-       $imageList.width(totalWidth * 2);
-       $imageList.css({left:-totalWidth});
 
-       var currentItemWd = $("#imagesCarousel-list li.currentItem").outerWidth(true);
+       $imageList.width(totalWidth);
+
+       var cloneListCenter = $imageList.clone();//中间的UL
+       $(cloneListCenter.children("li")[0]).addClass('currentItem');
+       $('#imagesCarousel').append(cloneListCenter);
+
+       var cloneListRight = $imageList.clone();//右边的UL
+       $('#imagesCarousel').append(cloneListRight);
+
+       var currentItemWd = $(".imagesCarousel-list li.currentItem").outerWidth(true);
+
+       cloneListCenter.css({left:(containterWd - currentItemWd) / 2});
        $imageList.css({left:-totalWidth + (containterWd - currentItemWd) / 2});
-	}
+       cloneListRight.css({left:totalWidth + (containterWd - currentItemWd) / 2})
+  }
 
-	function bindEvent() {
-		$("#left-pre-btn").on('click',prevClick);
-		$("#right-next-btn").on('click',nextClick);
-	}
+  function bindEvent() {
+    $("#left-pre-btn").on('click',prevClick);
+    $("#right-next-btn").on('click',nextClick);
+  }
 
-	function prevClick() {
-		var $imageList = $("#imagesCarousel-list");
-		var $currentItem = $("#imagesCarousel-list li.currentItem");
-		var $prevItem = $currentItem.prev();
-		var left = parseInt($imageList.css("left"));
-		var prevWd = $prevItem.outerWidth(true);
-		var currentWd = $currentItem.outerWidth(true);
-		var offsetCurrentWd = (containterWd- currentWd) / 2;
-		var prevOffset = (containterWd- prevWd) / 2;
+  function prevClick() { 
+    var $currentItem = $(".imagesCarousel-list li.currentItem");
+    var $imageList = $currentItem.parent();
+    var $prevItem = $currentItem.prev();
 
-		var newLeft = left +  prevWd - offsetCurrentWd + prevOffset;
-		if(newLeft > 0) {
-			var $lastLi = $("#imagesCarousel-list").children(":last");
-        	var lastLiWd = $lastLi.outerWidth(true);
-        	newLeft -= lastLiWd;
-        	$imageList.prepend($lastLi);
-		}
+    if(!$prevItem[0]) {
+      var $prevList = $currentItem.parent().prev();
+      var prevCloneList = $prevList.clone();
 
-		$currentItem.removeClass("currentItem");
-		$prevItem.addClass("currentItem");
-		$imageList.css({left:newLeft});
+      $prevItem = $prevList.children("li:last");
+      prevListLeft = parseInt($prevList.css("left"));
+      prevCloneList.css({left:prevListLeft-totalWidth});
+      $('#imagesCarousel').prepend(prevCloneList);
+      $currentItem.parent().next().remove();
+    }
+    
+    var prevWd = $prevItem.outerWidth(true);
+    var currentWd = $currentItem.outerWidth(true);//当前节点宽度
+    var offsetCurrentWd = (containterWd- currentWd) / 2;
+    var prevOffset = (containterWd- prevWd) / 2;
+
+    var newLeft = Math.ceil(prevWd - offsetCurrentWd + prevOffset);
+    $(".imagesCarousel-list").each(function(i,item) {
+        var leftWd = parseInt($(item).css("left"));
+        $(item).animate({left:(leftWd + newLeft)});
+
+    })
+
+    $currentItem.removeClass("currentItem");
+    $prevItem.addClass("currentItem");
 
        
-	}
-	function nextClick() {
-		var $imageList = $("#imagesCarousel-list");
-		var totalListWd = $imageList.outerWidth(true);
-		var $currentItem = $("#imagesCarousel-list li.currentItem");
-		var $nextItem = $currentItem.next();
-		var left = parseInt($imageList.css("left"));
-		var nextWd = $nextItem.outerWidth(true);
-		var currentWd = $currentItem.outerWidth(true);
-		var offsetCurrentWd = (containterWd- currentWd) / 2;
-		var nextOffset = (containterWd- nextWd) / 2;
-        
-        var newLeft = left  - offsetCurrentWd - currentWd + nextOffset;
-        if(newLeft - containterWd < - totalListWd) {
-        	var $firstLi = $("#imagesCarousel-list").children(":first");
-        	var firstLiWd = $firstLi.outerWidth(true);
-        	newLeft += firstLiWd;
-        	$imageList.append($firstLi);
-        }
+  }
+  function nextClick() {
+    var $currentItem = $(".imagesCarousel-list li.currentItem");
+    var $imageList = $currentItem.parent();
+    var $nextItem = $currentItem.next();
+    
+    if(!$nextItem[0]) {
+      var $nextList = $currentItem.parent().next();
+      var nextCloneList = $nextList.clone();
 
-		$currentItem.removeClass("currentItem");
-		$nextItem.addClass("currentItem");
-		$imageList.css({left:newLeft});
-       		
-	}
+      $nextItem = $nextList.children("li:first");
+      nextListLeftWd = parseInt($nextList.css("left"));
+      nextCloneList.css({left:nextListLeftWd + totalWidth});
+      $('#imagesCarousel').append(nextCloneList);
+      $currentItem.parent().prev().remove();
+    }
+
+    var left = parseInt($imageList.css("left"));
+    var nextWd = $nextItem.outerWidth(true);
+    var currentWd = $currentItem.outerWidth(true);
+    var offsetCurrentWd = (containterWd- currentWd) / 2;
+    var nextOffset = (containterWd- nextWd) / 2;
+        
+    var newLeft =  Math.ceil(-offsetCurrentWd - currentWd + nextOffset);
+    $(".imagesCarousel-list").each(function(i,item) {
+        var leftWd = parseInt($(item).css("left"));
+        $(item).animate({left:(leftWd + newLeft)});
+    })
+
+    $currentItem.removeClass("currentItem");
+    $nextItem.addClass("currentItem");    
+  }

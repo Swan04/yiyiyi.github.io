@@ -38,20 +38,20 @@
 	height: 200px;
 	margin:0 auto;
 	overflow: hidden;
+
 }
 .imagesCarousel-container .imagesCarousel .imagesCarousel-list {
-	position: relative;
+	position: absolute;
 	left:0;
 	top:0;
-    width:660px;
+    float: left;
 }
 .imagesCarousel-container .imagesCarousel .imagesCarousel-item {
-	float: left;
+    float: left;
 	margin:0 10px;
 }
 .imagesCarousel-container .imagesCarousel .imagesCarousel-item.currentItem {
 	display: block;
-	box-shadow: 0px 0px 10px 10px #666;
 }
 .imagesCarousel-container .imagesCarousel .imagesCarousel-img {
 	height: 200px;
